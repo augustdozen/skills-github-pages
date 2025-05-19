@@ -1,0 +1,64 @@
+<html lang="ko"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Plan Maps</title>
+  <style>
+    #map-container img {
+      max-width: 100%;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  </style>
+  <script>
+    const NAVER_CLIENT_ID = "smja3rlq24";
+    const NAVER_CLIENT_SECRET = "ZMep8V3Pgd3pTHXYdy5X3FYFqtvT1zg2WVTmRd8k";
+
+    // Static Map API 호출 및 Blob 처리 함수
+    async function fetchMapImage(start, goal, option) {
+      const url = `https://naveropenapi.apigw.ntruss.com/map-static/v2/routing?start=${start}&goal=${goal}&option=${option}`;
+      const response = await fetch(url, {
+        headers: {
+          'X-NCP-APIGW-API-KEY-ID': NAVER_CLIENT_ID,
+          'X-NCP-APIGW-API-KEY': NAVER_CLIENT_SECRET
+        }
+      });
+      if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('map-container');
+      const routes = [
+        { label: 'Day1 Car', start: '37.6863,126.7709', goal: '37.5443,127.0631', option: 'traoptimal' },
+        { label: 'Day1 Walk', start: '37.5443,127.0631', goal: '37.5445,127.0386', option: 'foot' },
+        { label: 'Day2 Car1', start: '37.7519,128.8760', goal: '37.7574,128.8743', option: 'traoptimal' },
+        { label: 'Day2 Car2', start: '37.7574,128.8743', goal: '37.6808,128.9827', option: 'traoptimal' },
+        { label: 'Day3 Car1', start: '37.7519,128.8760', goal: '37.7625,128.8768', option: 'traoptimal' },
+        { label: 'Day3 Car2', start: '37.7625,128.8768', goal: '37.7545,128.8768', option: 'traoptimal' },
+        { label: 'Day3 Car3', start: '37.7545,128.8768', goal: '37.6863,126.7709', option: 'traoptimal' }
+      ];
+
+      routes.forEach(async route => {
+        try {
+          const imgUrl = await fetchMapImage(route.start, route.goal, route.option);
+          const img = document.createElement('img');
+          img.src = imgUrl;
+          img.alt = route.label;
+          container.appendChild(img);
+        } catch (err) {
+          console.error('Map fetch error:', err);
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>3일간 여행 경로 지도</h1>
+  <div id="map-container">
+    <!-- 지도 이미지가 이곳에 렌더링 됩니다 -->
+  </div>
+
+
+</body></html>
